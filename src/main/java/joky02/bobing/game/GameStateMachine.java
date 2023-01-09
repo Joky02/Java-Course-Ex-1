@@ -34,15 +34,17 @@ public class GameStateMachine {
 	}
 
 	/**
-	 * @return Whether the game ends.
+	 * @return Whether the current player get the prize. 0 present no, 1 present yes, 2 present yes and the game ends.
 	 */
-	public boolean nextRound() {
+	public int nextRound() {
 
 		currentPlayerId = (currentPlayerId + 1) % players.length;
 		currentPlayer = players[currentPlayerId];
 		Arrays.stream(dices).forEach(Dice::rotate);
 
 		int result = Prize.fromDices(dices);
+
+		boolean isPrizeGot = false;
 
 		if (result > 0) {
 			if (Prize.isChampion(result)) {
@@ -59,21 +61,21 @@ public class GameStateMachine {
 							p.count--;
 						}
 					});
+					isPrizeGot = true;
 				}
 			} else {
 				if (prizes[result - 1].count > 0) {
 					prizes[result - 1].count--;
 					prizeRecords.add(new PrizeRecord(currentPlayer, result));
+					isPrizeGot = true;
 				}
 			}
 		}
 
-
-
 		if (isGameEnd()) {
 			if (CURRENT_CHAMPION.prize > 0)
 				prizeRecords.add(CURRENT_CHAMPION);
-			return true;
-		} else return false;
+			return 2;
+		} else return isPrizeGot ? 1 : 0;
 	}
 }

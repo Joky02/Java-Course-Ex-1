@@ -13,7 +13,7 @@ public class Main {
 
 	private static void init() {
 
-		System.out.println("Please Input the number of players");
+		System.out.print("请输入玩家人数：");
 		Player[] players = new Player[in.nextInt()];
 		for (int i = 0; i < players.length; i++) {
 			players[i] = new Player(i + 1);
@@ -22,7 +22,7 @@ public class Main {
 		Prize[] prizes = new Prize[5];
 
 		for (int i = 1; i <= 5; i++) {
-			System.out.println("Please Input the number of " + Prize.toString(i));
+			System.out.print("请输入" + Prize.toString(i) + "奖的数量：");
 			prizes[i - 1] = new Prize(i, in.nextInt());
 		}
 
@@ -34,15 +34,34 @@ public class Main {
 		init();
 
 		for (; ; ) {
-			boolean isEnd = gameStateMachine.nextRound();
-			System.out.println(gameStateMachine.currentPlayer.id +  ": " + Prize.fromDices(gameStateMachine.dices));
-			Arrays.stream(gameStateMachine.dices).forEach(d -> 	System.out.print(d.pip + " "));
-			System.out.println();
+			int status = gameStateMachine.nextRound();
 
-			if (isEnd) {
-				gameStateMachine.prizeRecords.forEach(pr -> System.out.println(pr.player.id +  ": " +  pr.prize));
-				break;
+			System.out.println("现在到玩家 " + gameStateMachine.currentPlayer.id + " 丢骰子");
+			pressEnterToContinue();
+			System.out.println("你丢的骰子是：");
+			Arrays.stream(gameStateMachine.dices).forEach(d -> System.out.print(d.pip + " "));
+			System.out.println();
+			if (status == 0) {
+				System.out.println("很遗憾，没有获奖");
+			} else {
+				System.out.println("恭喜玩家 " + gameStateMachine.currentPlayer.id + "，获得了" + Prize.toString(Prize.fromDices(gameStateMachine.dices)) + "奖");
+				if (status == 2) {
+					System.out.println("游戏结束！");
+					gameStateMachine.prizeRecords.forEach(pr -> System.out.println("玩家 " + pr.player.id + " 获得了" + Prize.toString(pr.prize) + "奖"));
+					break;
+				}
 			}
+			System.out.println();
+		}
+	}
+
+	@SuppressWarnings("ResultOfMethodCallIgnored")
+	private static void pressEnterToContinue() {
+
+		System.out.print("请按任意键继续...");
+		try {
+			System.in.read();
+		} catch (Exception ignored) {
 		}
 	}
 }
